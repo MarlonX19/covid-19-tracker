@@ -14,7 +14,7 @@ export default function Routes() {
     return (
         <NavigationContainer>
             <Stack.Navigator>
-                <Stack.Screen name="Main" component={Main} />
+                <Stack.Screen name="Covid-19" component={Main} />
                 <Stack.Screen name="CountryInfo" component={CountryInfo} />
             </Stack.Navigator>
         </NavigationContainer>
