@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StatusBar, StyleSheet } from 'react-native';
+import { View, Text, StatusBar, StyleSheet, Dimensions } from 'react-native';
 import Divider from 'react-native-divider';
+import { PieChart } from "react-native-chart-kit";
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 import api from '../Services/Services';
 
+
+const chartConfig = {
+    backgroundGradientFrom: "#1E2923",
+    backgroundGradientFromOpacity: 0,
+    backgroundGradientTo: "#08130D",
+    backgroundGradientToOpacity: 0.5,
+    color: (opacity = 1) => `rgba(26, 255, 146, 1)`,
+    strokeWidth: 2, // optional, default 3
+    barPercentage: 0.5
+};
+
 export default function Main() {
     const [total, setTotal] = useState(0);
-    const [active, setActive] = useState(0);
     const [recovered, setRecovered] = useState(0);
     const [dead, setDead] = useState(0);
 
@@ -16,9 +30,7 @@ export default function Main() {
             .then(function (response) {
                 let ttl = 0;
                 let rcvrd = 0;
-                let actv = 0;
                 let dead = 0;
-                console.log(response.data)
                 response.data.data.covid19Stats.map(index => { ttl += index.confirmed, dead += index.deaths, rcvrd += index.recovered })
                 setTotal(ttl)
                 setRecovered(rcvrd)
@@ -33,6 +45,32 @@ export default function Main() {
         fetchList();
     }, [])
 
+
+    const data = [
+        {
+            name: "Ativos",
+            population: total - recovered,
+            color: "orange",
+            legendFontColor: "#7F7F7F",
+            legendFontSize: 15
+        },
+        {
+            name: "Recuperados",
+            population: recovered,
+            color: "green",
+            legendFontColor: "#7F7F7F",
+            legendFontSize: 15
+        },
+        {
+            name: "Fatais",
+            population: dead,
+            color: "grey",
+            legendFontColor: "#7F7F7F",
+            legendFontSize: 15
+        },
+
+    ];
+
     return (
         <View style={styles.container}>
             <StatusBar barStyle='dark-content' backgroundColor='#fff' />
@@ -45,20 +83,28 @@ export default function Main() {
                 <View style={styles.casesView}>
                     <View style={styles.cases}>
                         <Text style={styles.activeCases}>Casos ativos</Text>
-                        <Text>{total - recovered}</Text>
+                        <Text style={styles.casesNumber}>{total - recovered}</Text>
                     </View>
                     <View style={styles.cases}>
                         <Text style={styles.recoveredCases}>Casos recuperados</Text>
-                        <Text>{recovered}</Text>
+                        <Text style={styles.casesNumber}>{recovered}</Text>
                     </View>
                     <View style={styles.cases}>
                         <Text style={styles.deadlyCases}>Casos fatais</Text>
-                        <Text>{dead}</Text>
+                        <Text style={styles.casesNumber}>{dead}</Text>
                     </View>
                 </View>
             </View>
             <View style={styles.bottomView}>
-
+                <PieChart
+                    data={data}
+                    width={windowWidth}
+                    height={220}
+                    chartConfig={chartConfig}
+                    accessor="population"
+                    backgroundColor="transparent"
+                    paddingLeft="5"
+                />
             </View>
         </View>
     );
@@ -72,6 +118,12 @@ const styles = StyleSheet.create({
     },
     topView: {
         flex: 1,
+        backgroundColor: '#fff',
+        borderWidth: 0.7,
+        borderColor: 'lightgrey',
+        borderRadius: 10,
+        elevation: 9,
+        margin: 10
     },
 
     title: {
@@ -87,7 +139,16 @@ const styles = StyleSheet.create({
     },
 
     bottomView: {
-        flex: 1
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+
+        backgroundColor: '#fff',
+        borderWidth: 0.7,
+        borderColor: 'lightgrey',
+        borderRadius: 10,
+        elevation: 9,
+        margin: 10
     },
 
     casesView: {
@@ -100,18 +161,26 @@ const styles = StyleSheet.create({
         width: '100%',
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
         paddingHorizontal: 10
     },
 
     activeCases: {
-        color: 'orange'
+        color: 'orange',
+        fontSize: 20
     },
 
     recoveredCases: {
-        color: 'green'
+        color: 'green',
+        fontSize: 20,
     },
 
     deadlyCases: {
-        color: 'grey'
+        color: 'grey',
+        fontSize: 20
+    },
+
+    casesNumber: {
+        fontSize: 18
     }
 });
